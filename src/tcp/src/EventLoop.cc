@@ -1,10 +1,12 @@
 #include "EventLoop.h"
 #include "EventHandler.h"
+#include "EventTrigger.h"
 #include "Log.h"
 
 EventLoop::EventLoop()
 {
 	base_ = event_base_new();
+	//event_trigger_ = new EventTrigger(shared_from_this());
 }
 
 EventLoop::~EventLoop()

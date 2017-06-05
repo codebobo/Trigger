@@ -57,7 +57,7 @@ void TcpConnection::readCallback()
 void TcpConnection::writeCallback()
 {
 	socket_operator_.write(fd_, write_buffer_ptr_);
-	if(write_buffer_ptr_->getWritableBytes() <= 0)
+	if(write_buffer_ptr_->getReadableBytes() <= 0)
 	{
 		event_handler_ptr_->disableWrite();
 		if(shutdown_write_callback_)

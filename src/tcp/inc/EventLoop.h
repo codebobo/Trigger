@@ -7,7 +7,8 @@
 //#include "EventHandler.h"
 
 class EventHandler;
-class EventLoop
+class EventTrigger;
+class EventLoop: public std::enable_shared_from_this<EventLoop>
 {
 	public:
 		EventLoop();
@@ -30,6 +31,7 @@ class EventLoop
 
 	private:
 		struct event_base* base_;
+		EventTrigger* event_trigger_;
 };
 
 #endif

@@ -82,7 +82,7 @@ void EventHandler::registerEvent()
 
 void EventHandler::unregisterEvent()
 {
-	if(state_ == EventState::REGISTERED)
+	if(state_ == EventState::UNREGISTER)
 	{
 		LOG4CPLUS_WARN(_logger, "event has been unregistered, do not unregister again!");
 		return;
@@ -90,7 +90,7 @@ void EventHandler::unregisterEvent()
 	if(loop_ptr_)
 	{
 		loop_ptr_->removeEvent(shared_from_this());
-		state_ == EventState::UNREGISTER;
+		state_ = EventState::UNREGISTER;
 	}
 }
 

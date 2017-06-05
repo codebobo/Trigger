@@ -64,6 +64,7 @@ void TcpServer::newConnection(std::shared_ptr<TcpConnection>& tcp_connection_ptr
 void TcpServer::newMessage(std::shared_ptr<TcpConnection> tcp_connection_ptr)
 {
 	LOG4CPLUS_DEBUG(_logger, "new message received: "<<tcp_connection_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
+	tcp_connection_ptr->write("Hello!", 6);
 	if(tcp_connection_ptr && newMessageCallback_)
 	{
 		newMessageCallback_(tcp_connection_ptr);
