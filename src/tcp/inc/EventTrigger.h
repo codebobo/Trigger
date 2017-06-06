@@ -3,22 +3,24 @@
 
 #include <stdint.h>
 #include <memory>
-//#include "EventHandler.h"
+#include "EventWrap.h"
+#include "Log.h"
+#include "EventHandlerAbstract.h"
 
-class EventHandler;
 class EventLoop;
-class EventTrigger
+class EventTrigger : public EventHandlerAbstract
 {
 public:
-	 EventTrigger(std::shared_ptr<EventLoop> loop_ptr);
+	friend class EventLoop;
+	 EventTrigger(EventLoop* loop_ptr, std::function<void()> trig_func);
 	void trigEvent();
-	void handleRead();
-	//shared_ptr<TrantorPipe> getEventPipe() const{return event_pipe_sp_;}
+
 private:
 	uint32_t createEventfd();
 	uint32_t eventfd_;
-	std::shared_ptr<EventHandler> event_handler_ptr_;
-	std::shared_ptr<EventLoop> loop_ptr_;
+	std::function<void()> trig_func_;
+
+	virtual void handleEvents(const int fd, const short events, void* arg);
 };
 
 #endif

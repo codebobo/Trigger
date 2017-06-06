@@ -15,7 +15,7 @@ class TcpAcceptor:public std::enable_shared_from_this<TcpAcceptor>
 {
 	typedef std::function<void(std::shared_ptr<TcpConnection>&)> ReadCallback;
 	public:
-		TcpAcceptor(std::shared_ptr<EventLoop> loop_ptr);
+		TcpAcceptor(EventLoop* loop_ptr);
 		int init(const std::string& sever_addr, const int server_port);
 		void setReadCallback(ReadCallback cb)
 		{
@@ -39,7 +39,7 @@ class TcpAcceptor:public std::enable_shared_from_this<TcpAcceptor>
 		SocketOperator socket_operator_;
 		std::shared_ptr<EventHandler> event_handler_ptr_;
 		ReadCallback readCallback_;
-		std::shared_ptr<EventLoop> loop_ptr_;
+		EventLoop* loop_ptr_;
 		int listener_;
 
 		void readSocket();

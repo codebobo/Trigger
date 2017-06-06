@@ -5,11 +5,13 @@
 #include "EventLoop.h"
 #include "TcpAcceptor.h"
 #include "TcpConnection.h"
+#include "TrantorTimestamp.h"
 
 
 class TcpServer
 {
 	public:
+		TcpServer(EventLoop* loop_ptr);
 		TcpServer();
 		int init(const std::string& server_addr, const int server_port);
 		void start();
@@ -17,19 +19,21 @@ class TcpServer
 		{
 			newConnectionCallback_ = cb;
 		}
-		void setNewMessageCallback(const std::function<void(std::shared_ptr<TcpConnection>)> cb)
+		void setNewMessageCallback(const std::function<void(std::shared_ptr<TcpConnection>, const TrantorTimestamp)> cb)
 		{
 			newMessageCallback_ = cb;
 		}
 		
 	private:
-		std::shared_ptr<EventLoop> loop_ptr_;
+		EventLoop* loop_ptr_;
 		std::shared_ptr<TcpAcceptor> tcp_acceptor_ptr_;
-		std::map<int, std::shared_ptr<TcpConnection> > tcp_connection_map_;
+		std::map<const std::string, std::shared_ptr<TcpConnection> > tcp_connection_map_;
 		std::function<void(std::shared_ptr<TcpConnection>)> newConnectionCallback_;
-		std::function<void(std::shared_ptr<TcpConnection>)> newMessageCallback_;
-		void newConnection(std::shared_ptr<TcpConnection>&);
-		void newMessage(std::shared_ptr<TcpConnection>);
+		std::function<void(std::shared_ptr<TcpConnection>, const TrantorTimestamp)> newMessageCallback_;
+		std::function<void(std::shared_ptr<TcpConnection>)> closeCallback_;
+		void newConnectionCallback(std::shared_ptr<TcpConnection>&);
+		void newMessageCallback(std::shared_ptr<TcpConnection>, const TrantorTimestamp);
+		void closeCallback(std::shared_ptr<TcpConnection>);
 };
 		
 

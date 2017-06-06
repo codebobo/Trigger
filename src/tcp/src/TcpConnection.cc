@@ -1,8 +1,9 @@
 #include "TcpConnection.h"
 #include "Log.h"
+#include "TrantorTimestamp.h"
 
-TcpConnection::TcpConnection(std::shared_ptr<EventLoop> loop_ptr, const int fd)
-:loop_ptr_(loop_ptr), fd_(fd)
+TcpConnection::TcpConnection(EventLoop* loop_ptr, const int fd, const std::string connection_id)
+:loop_ptr_(loop_ptr), fd_(fd),connection_id_(connection_id)
 {
 	event_handler_ptr_ = std::make_shared<EventHandler>(loop_ptr, fd);
 	read_buffer_ptr_ = std::make_shared<StringBuffer>();
@@ -41,7 +42,7 @@ void TcpConnection::readCallback()
 	{
 		if(readCallback_)
 		{
-			readCallback_(shared_from_this());
+			readCallback_(shared_from_this(), TrantorTimestamp::now());
 		}
 	}
 	else

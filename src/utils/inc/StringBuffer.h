@@ -1,6 +1,7 @@
 #ifndef STRINGBUFFER_H_
 #define STRINGBUFFER_H_
 
+#include <algorithm>
 #include <string>
 #include <limits.h>
 #include "Log.h"
@@ -41,6 +42,19 @@ public:
 	{
 		return static_cast<const char*>(&(*(string_buffer_.begin() + read_index_)));
 	}
+	const char* peek() const
+	{
+		return getReadAddr();
+	}
+	const char* stringEnd()
+	{
+		return string_buffer_.c_str() + string_buffer_.length();
+	}
+	char* findCRLF() const
+	{
+	    const char* crlf = std::search(peek(), stringEnd(), kCRLF, kCRLF+2);
+	    return crlf == stringEnd() ? NULL : crlf;
+	}
 	size_t getReadableBytes() const
 	{
 		return string_buffer_.length() - read_index_; 
@@ -63,6 +77,8 @@ private:
 	{
 		return read_index_;
 	}
+
+	const static char kCRLF[];
 };
 
 #endif

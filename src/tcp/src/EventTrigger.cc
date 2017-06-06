@@ -1,30 +1,17 @@
 #include "EventTrigger.h"
 #include <sys/eventfd.h>
-#include "EventHandler.h"
 #include "unistd.h"
+#include "Log.h"
+#include "EventLoop.h"
 
-EventTrigger::EventTrigger(std::shared_ptr<EventLoop> loop_ptr)
-:eventfd_(createEventfd()),
-loop_ptr_(loop_ptr)
+EventTrigger::EventTrigger(EventLoop* loop_ptr, std::function<void()> trig_func)
+:EventHandlerAbstract(loop_ptr, (int)createEventfd()),
+trig_func_(trig_func)
 {
-	if(eventfd_ > 0)
-	{
-		event_handler_ptr_ = std::make_shared<EventHandler>(loop_ptr_, eventfd_);
-		if(event_handler_ptr_)
-		{
-			event_handler_ptr_->setReadCallback(std::bind(&EventTrigger::handleRead, this));
-			event_handler_ptr_->enableRead();
-			event_handler_ptr_->registerEvent();
-		}
-		else
-		{
-			abort();
-		}
-	}
-	else
-	{
-		//LOG_FATAL<<"eventfd create failed";
-	}
+	eventfd_ = event_wrap_.getEventFd();
+	event_wrap_.enableRead();
+	event_wrap_.setEventsHandler(std::bind(&EventTrigger::handleEvents, this, std::placeholders::_1, std::placeholders::_2, this));
+	//event_wrap_.registerEvent();
 }
 
 uint32_t EventTrigger::createEventfd()
@@ -32,7 +19,6 @@ uint32_t EventTrigger::createEventfd()
 	uint64_t evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
 	if (evtfd < 0)
 	{
-		//LOG_SYSERR << "Failed in eventfd";
 		abort();
 	}
 	return evtfd;
@@ -40,21 +26,23 @@ uint32_t EventTrigger::createEventfd()
 
 void EventTrigger::trigEvent()
 {
+	LOG4CPLUS_DEBUG(_logger, "trig event!");
 	uint64_t one = 1;
 	uint64_t n = write(eventfd_, &one, sizeof one);
-	if (n != sizeof one)
-	{
-		//LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
-	}
 }
 
-void EventTrigger::handleRead()
+void EventTrigger::handleEvents(const int fd, const short events, void* arg)
 {
+	LOG4CPLUS_DEBUG(_logger, "trig callback!");
 	uint64_t one = 1;
 	uint64_t n = read(eventfd_, &one, sizeof one);
 	if (n != sizeof one)
 	{
-		//LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+		LOG4CPLUS_DEBUG(_logger, "EventLoop::handleRead() reads " << n << " bytes instead of 8");
+	}
+	if(trig_func_)
+	{
+		trig_func_();
 	}
 }
 

@@ -1,8 +1,9 @@
 #include <arpa/inet.h>
 #include "TcpAcceptor.h"
 #include "Log.h"
+#include "Funcs.h"
 
-TcpAcceptor::TcpAcceptor(std::shared_ptr<EventLoop> loop_ptr)
+TcpAcceptor::TcpAcceptor(EventLoop* loop_ptr)
 :loop_ptr_(loop_ptr)
 {	
 }
@@ -35,7 +36,7 @@ void TcpAcceptor::readSocket()
 	if(sockfd > 0)
 	{
 		LOG4CPLUS_INFO(_logger, "accept new tcp connection");
-		std::shared_ptr<TcpConnection> tcp_connection_ptr = std::make_shared<TcpConnection>(loop_ptr_, sockfd);
+		std::shared_ptr<TcpConnection> tcp_connection_ptr = std::make_shared<TcpConnection>(loop_ptr_, sockfd, getuuid());
 		if(tcp_connection_ptr && readCallback_)
 		{
 			readCallback_(tcp_connection_ptr);
