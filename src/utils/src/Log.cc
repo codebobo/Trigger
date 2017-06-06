@@ -9,7 +9,7 @@ void initLog()
 	_append->setName("EventServer append");
 
     /* step 2: Instantiate a layout object */
-    std::string pattern = "%d{%m/%d/%y %H:%M:%S}  - %m [%l]%n";
+    std::string pattern = "%d{%m/%d/%y %H:%M:%S} %p - %m - %t [%l]%n";
 	std::auto_ptr<Layout> _layout(new PatternLayout(pattern));
 
     /* step 3: Attach the layout object to the appender */

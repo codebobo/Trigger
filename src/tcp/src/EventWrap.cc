@@ -4,7 +4,6 @@
 
 void handleEventsCb(int fd, short events, void* arg)
 {
-	LOG4CPLUS_DEBUG(_logger, "event callback!");
 	EventWrap* wrap = (EventWrap*)arg;
 
 	short events_self = 0;
@@ -87,7 +86,6 @@ void EventWrap::registerEvent()
 	}
 	if(loop_ptr_)
 	{
-		LOG4CPLUS_DEBUG(_logger, "register event!");
 		loop_ptr_->addEvent(this);
 		state_ = EventState::REGISTERED;
 	}
@@ -138,7 +136,6 @@ void EventWrap::assignEvents()
 	{
 		evs_ ^= EV_WRITE;
 	}
-	LOG4CPLUS_ERROR(_logger, "evs after update: "<<evs_);
 	event_assign(ev_, loop_ptr_->getEventBase(), getEventFd(), evs_, handleEventsCb, this);
 }
 

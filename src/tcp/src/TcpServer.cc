@@ -3,23 +3,26 @@
 
 TcpServer::TcpServer()
 {
+	main_loop_ptr_ = NULL;
+	work_loop_pool_ = NULL;
 }
 
-TcpServer::TcpServer(EventLoop* loop_ptr)
+TcpServer::TcpServer(EventLoop* main_loop_ptr)
 {
-	loop_ptr_ = loop_ptr;
+	main_loop_ptr_ = main_loop_ptr;
+	work_loop_pool_ = NULL;
 }
 
 int TcpServer::init(const std::string& server_addr, const int server_port)
 {
-	if(loop_ptr_)
+	if(!main_loop_ptr_)
 	{
-		loop_ptr_ = new EventLoop;
+		main_loop_ptr_ = new EventLoop;
 	}
 	
-	if(loop_ptr_)
+	if(main_loop_ptr_)
 	{
-		tcp_acceptor_ptr_ = std::make_shared<TcpAcceptor>(loop_ptr_);
+		tcp_acceptor_ptr_ = std::make_shared<TcpAcceptor>(main_loop_ptr_);
 		if(tcp_acceptor_ptr_)
 		{
 			if(tcp_acceptor_ptr_->init(server_addr, server_port) < 0)
@@ -48,10 +51,11 @@ int TcpServer::init(const std::string& server_addr, const int server_port)
 
 void TcpServer::start()
 {
-	if(loop_ptr_)
+	if(main_loop_ptr_)
 	{
+		tcp_acceptor_ptr_->setWorkLoopPool(work_loop_pool_);
 		LOG4CPLUS_INFO(_logger, "start tcp server") ;
-		loop_ptr_->loop();
+		main_loop_ptr_->loop();
 	}
 	else
 	{

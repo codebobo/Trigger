@@ -6,6 +6,7 @@
 #include "TcpAcceptor.h"
 #include "TcpConnection.h"
 #include "TrantorTimestamp.h"
+#include "EventLoopThreadPool.h"
 
 
 class TcpServer
@@ -23,9 +24,14 @@ class TcpServer
 		{
 			newMessageCallback_ = cb;
 		}
+		void setWorkThreadNum(const int thread_num)
+		{
+			work_loop_pool_ = new EventLoopThreadPool(thread_num);
+		}
 		
 	private:
-		EventLoop* loop_ptr_;
+		EventLoop* main_loop_ptr_;
+		EventLoopThreadPool* work_loop_pool_;
 		std::shared_ptr<TcpAcceptor> tcp_acceptor_ptr_;
 		std::map<const std::string, std::shared_ptr<TcpConnection> > tcp_connection_map_;
 		std::function<void(std::shared_ptr<TcpConnection>)> newConnectionCallback_;
