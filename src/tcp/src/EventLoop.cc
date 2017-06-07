@@ -20,7 +20,7 @@ EventLoop::~EventLoop()
 
 void EventLoop::loop()
 {
-	LOG4CPLUS_DEBUG(_logger, "begin loop!");
+	//LOG4CPLUS_DEBUG(_logger, "begin loop!");
 	loop_thread_id_ = std::this_thread::get_id();
 	event_trigger_->registerEvent();
 	if(base_)

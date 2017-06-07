@@ -57,6 +57,8 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 		void closedByPeerCallback();
 		void writeCallback();
 		void readCallback();
+		void shutdownWriteInLoop();
+		void forceCloseInLoop();
 };
 
 #endif

@@ -34,7 +34,6 @@ void TcpAcceptor::readSocket()
 	int sockfd = socket_operator_.accept(listener_);
 	if(sockfd > 0)
 	{
-		LOG4CPLUS_INFO(_logger, "accept new tcp connection ");
 		std::shared_ptr<TcpConnection> tcp_connection_ptr;
 		if(work_thread_pool_ != NULL)
 		{

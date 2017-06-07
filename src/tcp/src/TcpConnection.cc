@@ -1,4 +1,5 @@
 #include "TcpConnection.h"
+#include "EventLoop.h"
 #include "Log.h"
 #include "TrantorTimestamp.h"
 
@@ -12,7 +13,6 @@ TcpConnection::TcpConnection(EventLoop* loop_ptr, const int fd, const std::strin
 	{
 		event_handler_ptr_->setReadCallback(std::bind(&TcpConnection::readCallback, this));
 		event_handler_ptr_->setWriteCallback(std::bind(&TcpConnection::writeCallback, this));
-		event_handler_ptr_->setCloseCallback(std::bind(&TcpConnection::closedByPeerCallback, this));
 	}
 	else
 	{
@@ -25,7 +25,6 @@ TcpConnection::~TcpConnection()
 	if(fd_ > 0)
 	{
 		LOG4CPLUS_INFO(_logger, "close fd") ;
-		event_handler_ptr_->unregisterEvent();
 		socket_operator_.close(fd_);
 	}
 }
@@ -50,10 +49,7 @@ void TcpConnection::readCallback()
 	else
 	{
 		LOG4CPLUS_INFO(_logger, "TcpConnection closed by peer") ;
-		if(closedCallback_)
-		{
-			closedCallback_(shared_from_this());
-		}
+		closedByPeerCallback();
 	}
 }
 
@@ -71,9 +67,10 @@ void TcpConnection::writeCallback()
 	}
 }
 
+//closed by peer, unregister event and close fd in dtor
 void TcpConnection::closedByPeerCallback()
 {
-	socket_operator_.shutdownWrite(fd_);
+	event_handler_ptr_->unregisterEvent();
 	if(closedCallback_)
 	{
 		closedCallback_(shared_from_this());
@@ -81,6 +78,11 @@ void TcpConnection::closedByPeerCallback()
 }
 
 void TcpConnection::shutdownWrite()
+{
+	loop_ptr_->runInLoop(std::bind(&TcpConnection::shutdownWriteInLoop, this));
+}
+
+void TcpConnection::shutdownWriteInLoop()
 {
 	if(write_buffer_ptr_->getReadableBytes() > 0)
 	{
@@ -97,12 +99,15 @@ void TcpConnection::shutdownWrite()
 
 void TcpConnection::forceClose()
 {
+	loop_ptr_->runInLoop(std::bind(&TcpConnection::forceCloseInLoop, this));
+}
+
+void TcpConnection::forceCloseInLoop()
+{
 	if(write_buffer_ptr_->getReadableBytes() > 0)
 	{
 		shutdown_write_callback_ = [=]()
 		{
-			socket_operator_.close(fd_);
-			fd_ = -1;
 			if(closedCallback_)
 			{
 				closedCallback_(shared_from_this());
@@ -111,8 +116,6 @@ void TcpConnection::forceClose()
 	}
 	else
 	{
-		socket_operator_.close(fd_);
-		fd_ = -1;
 		if(closedCallback_)
 		{
 			closedCallback_(shared_from_this());

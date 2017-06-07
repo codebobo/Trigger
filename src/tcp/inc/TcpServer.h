@@ -40,6 +40,7 @@ class TcpServer
 		void newConnectionCallback(std::shared_ptr<TcpConnection>&);
 		void newMessageCallback(std::shared_ptr<TcpConnection>, const TrantorTimestamp);
 		void closeCallback(std::shared_ptr<TcpConnection>);
+		void closeCallbackInMainLoop(std::shared_ptr<TcpConnection>);
 };
 		
 

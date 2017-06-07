@@ -25,16 +25,11 @@ class EventHandler : public EventHandlerAbstract
 		{
 			writeCallback_ = cb;
 		}
-		void setCloseCallback(const std::function<void()>& cb)
-		{
-			closeCallback_ = cb;
-		}
 		void handleEvents(const int fd, const short events, void* arg);
 
 	private:
 		std::function<void()> readCallback_;
 		std::function<void()> writeCallback_;
-		std::function<void()> closeCallback_;
 };
 
 #endif
