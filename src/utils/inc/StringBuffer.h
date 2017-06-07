@@ -46,11 +46,11 @@ public:
 	{
 		return getReadAddr();
 	}
-	const char* stringEnd()
+	const char* stringEnd() const
 	{
 		return string_buffer_.c_str() + string_buffer_.length();
 	}
-	char* findCRLF() const
+	const char* findCRLF() const
 	{
 	    const char* crlf = std::search(peek(), stringEnd(), kCRLF, kCRLF+2);
 	    return crlf == stringEnd() ? NULL : crlf;

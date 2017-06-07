@@ -11,13 +11,13 @@ TimerManager::TimerManager(EventLoop* loop_ptr)
 
 void TimerManager::runAfter(std::function<void()> cb, const double interval)
 {
-	LOG4CPLUS_DEBUG(_logger, "runAfter");
+	//LOG4CPLUS_DEBUG(_logger, "runAfter");
 	registerTimer(cb, interval);
 }
 
 void TimerManager::runEvery(std::function<void()> cb, const double interval)
 {
-	LOG4CPLUS_DEBUG(_logger, "runEvery");
+	//LOG4CPLUS_DEBUG(_logger, "runEvery");
 	std::function<void()> cb1 = [=]()
 	{
 		cb();
@@ -34,7 +34,7 @@ void TimerManager::runAt(std::function<void()> cb, const TrantorTimestamp timest
 
 void TimerManager::registerTimer(std::function<void()> cb, double interval)
 {
-	LOG4CPLUS_DEBUG(_logger, "registerTimer");
+	//LOG4CPLUS_DEBUG(_logger, "registerTimer");
 	
 	TimerHandler* timer_handler = new TimerHandler(loop_ptr_, cb, interval); //delete in timer cb
 }

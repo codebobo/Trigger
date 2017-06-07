@@ -5,12 +5,12 @@
 #include "EventLoop.h"
 
 EventTrigger::EventTrigger(EventLoop* loop_ptr, std::function<void()> trig_func)
-:EventHandlerAbstract(loop_ptr, (int)createEventfd()),
-trig_func_(trig_func)
+:eventfd_(createEventfd()),
+trig_func_(trig_func),
+event_handler_(loop_ptr, eventfd_)
 {
-	eventfd_ = event_wrap_.getEventFd();
-	event_wrap_.enableRead();
-	event_wrap_.setEventsHandler(std::bind(&EventTrigger::handleEvents, this, std::placeholders::_1, std::placeholders::_2, this));
+	event_handler_.enableRead();
+	event_handler_.setReadCallback(std::bind(&EventTrigger::handleEvents, this));
 	//event_wrap_.registerEvent();
 }
 
@@ -26,12 +26,12 @@ uint32_t EventTrigger::createEventfd()
 
 void EventTrigger::trigEvent()
 {
-	LOG4CPLUS_DEBUG(_logger, "trig event!");
+	//LOG4CPLUS_DEBUG(_logger, "trig event!");
 	uint64_t one = 1;
 	uint64_t n = write(eventfd_, &one, sizeof one);
 }
 
-void EventTrigger::handleEvents(const int fd, const short events, void* arg)
+void EventTrigger::handleEvents()
 {
 	LOG4CPLUS_DEBUG(_logger, "trig callback!");
 	uint64_t one = 1;
