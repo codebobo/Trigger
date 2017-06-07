@@ -3,53 +3,47 @@
 
 const char StringBuffer::kCRLF[] = "\r\n";
 
-StringBuffer::StringBuffer(const uint64_t high_water_level_threahold):
-high_water_level_threahold_(high_water_level_threahold),
-string_buffer_(),
-read_index_(0)
+StringBuffer::StringBuffer():
+read_index_(0),
+write_index_(0)
 {
 }
 
 int StringBuffer::writeBuffer(const std::string& data)
 {
-	if(!highWaterLevelFlag())
-	{
-		if(getWritableBytes() < data.length())
-		{
-			string_buffer_.append(data);
-		}
-		else
-		{
-			if(getBackwardBytes() < data.length())
-			{
-				eraseBuffer(read_index_);
-			}
-			string_buffer_.append(data);
-		}
-		return 0;
-	}
-	return -1;
+	writeBuffer(data.c_str(), data.length());
+}
+
+void StringBuffer::resizeBuffer(const long size)
+{
+	buffer_.resize(size);
+}
+
+
+void StringBuffer::adjustBuffer()
+{
+	long len = getReadableBytes();
+	memcpy(static_cast<char*>(&(*buffer_.begin())), peek(), len);
+	read_index_ = 0;
+	write_index_ = len;
 }
 
 int StringBuffer::writeBuffer(const char* addr, const size_t size)
 {
-	if(addr && !highWaterLevelFlag())
+	if(getBackwardWritableBytes() >= size)
 	{
-		if(getWritableBytes() < size)
-		{
-			string_buffer_.append(addr, size);
-		}
-		else
-		{
-			if(getBackwardBytes() < size)
-			{
-				eraseBuffer(read_index_);
-			}
-			string_buffer_.append(addr, size);
-		}
-		return 0;
+		memcpy(const_cast<char*>(end()), addr, size);
 	}
-	return -1;
+	else if(getBackwardWritableBytes() + getForwardWritableBytes() >= size)
+	{
+		adjustBuffer();
+		memcpy(const_cast<char*>(end()), addr, size);
+	}
+	else
+	{
+		resizeBuffer(buffer_.capacity() + size - getBackwardWritableBytes() + 1);
+		memcpy(const_cast<char*>(end()), addr, size);
+	}
 }
 size_t StringBuffer::readBuffer(const char* addr, const size_t size)
 {
@@ -88,13 +82,4 @@ size_t StringBuffer::readBuffer(std::string& data, const size_t size)
 		return size;
 	}
 }
-int StringBuffer::eraseBuffer(const size_t size)
-{
-	if(size <= string_buffer_.length())
-	{
-		string_buffer_.erase(string_buffer_.begin(), string_buffer_.begin() + size);
-		read_index_  -= size;
-		return 0;
-	}
-	return -1;
-}
+

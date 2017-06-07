@@ -10,7 +10,7 @@
 class StringBuffer
 {
 public:
-	explicit StringBuffer(const uint64_t high_water_level_threahold = INT_MAX);
+	explicit StringBuffer();
 	int writeBuffer(const std::string& data);
 	int writeBuffer(const char* addr, const size_t size);
 	size_t readBuffer(const char* addr, const size_t size);
@@ -18,62 +18,87 @@ public:
 	void retrieve(size_t n)
 	{
 		read_index_ += n;
-		read_index_ = (read_index_ <= string_buffer_.length() ? read_index_ : string_buffer_.length());
+		read_index_ = (read_index_ <= buffer_.size() ? read_index_ : buffer_.size());
 	}
-
+	void retrieveAll()
+	{
+		retrieve(getReadableBytes());
+	}
 	std::string retrieveAllAsString()
 	{
-		LOG4CPLUS_DEBUG(_logger, "string info: "<<read_index_<<"  "<<getReadableBytes()) ;
-		std::string str = string_buffer_.substr(read_index_, getReadableBytes());
-		clear();
+		retrieveAsString(getReadableBytes());
+	}
+
+	std::string retrieveAsString(long len)
+	{
+		LOG4CPLUS_DEBUG(_logger, "string info: "<<read_index_<<"  "<<len) ;
+		std::string str(peek(), len);
+		retrieve(len);
 		return str;
 	}
 	void clear()
 	{
-		string_buffer_.clear();
+		buffer_.clear();
 		read_index_ = 0;
-	}
-	
-	bool highWaterLevelFlag() const
-	{
-		return getReadableBytes() >= high_water_level_threahold_ ? true : false;
+		write_index_ = 0;
 	}
 	const char* getReadAddr() const
 	{
-		return static_cast<const char*>(&(*(string_buffer_.begin() + read_index_)));
+		return static_cast<const char*>(&(*(buffer_.begin() + read_index_)));
 	}
 	const char* peek() const
 	{
 		return getReadAddr();
 	}
-	const char* stringEnd() const
+	const char* end() const
 	{
-		return string_buffer_.c_str() + string_buffer_.length();
+		return static_cast<const char*>(&(*(buffer_.begin() + write_index_)));
 	}
 	const char* findCRLF() const
 	{
-	    const char* crlf = std::search(peek(), stringEnd(), kCRLF, kCRLF+2);
-	    return crlf == stringEnd() ? NULL : crlf;
+	    const char* crlf = std::search(peek(), end(), kCRLF, kCRLF+2);
+	    return crlf == end() ? NULL : crlf;
 	}
 	size_t getReadableBytes() const
 	{
-		return string_buffer_.length() - read_index_; 
+		return write_index_ - read_index_; 
 	}
-	size_t getWritableBytes() const
+	size_t getTotalWritableBytes() const
 	{
-		return getForwardBytes() + getBackwardBytes();
+		return getBackwardWritableBytes() + getForwardWritableBytes();
 	}
+	void append(const std::string& str)
+	{
+		writeBuffer(str);
+	}
+	void unwrite(long size)
+	{
+		if(getReadableBytes() >= size)
+		{
+			write_index_ -= size;
+		}
+	}
+	void retrieveUntil(const char* ptr)
+	{
+	    if(peek() <= ptr && ptr <= end());
+	    {
+	    	retrieve(ptr - peek());
+	    }
+	}
+	
 private:
-	uint64_t high_water_level_threahold_;
 	uint64_t read_index_;
-	std::string string_buffer_;
+	uint64_t write_index_;
+	std::vector<char> buffer_;
 
-	int eraseBuffer(const size_t size);
-	size_t getBackwardBytes() const
+	void resizeBuffer(const long size);
+	void adjustBuffer();
+
+	size_t getBackwardWritableBytes() const
 	{
-		return string_buffer_.capacity() - string_buffer_.length();
+		return buffer_.capacity() - write_index_;
 	}
-	size_t getForwardBytes() const
+	size_t getForwardWritableBytes() const
 	{
 		return read_index_;
 	}

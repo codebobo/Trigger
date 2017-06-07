@@ -15,5 +15,5 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/test DIR_SRCS)
 
 add_executable(eventserver ${DIR_SRCS})
 
-target_link_libraries(eventserver event log4cplus)
+target_link_libraries(eventserver event log4cplus libuuid.so pthread config++ crypto)
 

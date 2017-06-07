@@ -6,7 +6,7 @@
 #include "EventHandler.h"
 #include "StringBuffer.h"
 #include "TrantorTimestamp.h"
-
+#include "TrantorAny.h"
 
 class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 {
@@ -14,6 +14,22 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 		TcpConnection(EventLoop* loop_ptr, const int fd, const std::string connection_id);
 		~TcpConnection();
 		void write(const char* addr, const long len);
+		void write(const std::string& str)
+		{
+			write(str.c_str(), str.size());
+		}
+		void send(const std::string& str)
+		{
+			write(str.c_str(), str.size());
+		}
+		void send(StringBuffer* buf)
+		{
+			write(buf->peek(), buf->getReadableBytes());
+		}
+		void send(const char* addr, const long len)
+		{
+			write(addr, len);
+		}
 		void enableRead()
 		{
 			event_handler_ptr_->enableRead();
@@ -35,9 +51,22 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 		{
 			event_handler_ptr_->registerEvent();
 		}
+		void setContext(const TrantorAny& context)
+  		{ 
+  			context_ = context; 
+		}
+		TrantorAny* getMutableContext()
+  		{ 
+  			return &context_; 
+		}
 		int getFd(){return fd_;}
 		const std::string getConnId(){return connection_id_;}
 		std::shared_ptr<StringBuffer> getReadBufferPtr(){return read_buffer_ptr_;}
+
+		void shutdown()
+		{
+			shutdownWrite();
+		}
 
 		void shutdownWrite();
 		void forceClose();
@@ -53,6 +82,7 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 		std::function<void ()> shutdown_write_callback_;
 		EventLoop* loop_ptr_;
 		std::string connection_id_;
+		TrantorAny context_;
 
 		void closedByPeerCallback();
 		void writeCallback();

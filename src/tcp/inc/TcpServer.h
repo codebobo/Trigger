@@ -28,6 +28,10 @@ class TcpServer
 		{
 			work_loop_pool_ = new EventLoopThreadPool(thread_num);
 		}
+		EventLoop* getMainLoop()
+		{
+			return main_loop_ptr_;
+		}
 		
 	private:
 		EventLoop* main_loop_ptr_;
