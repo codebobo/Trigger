@@ -24,6 +24,8 @@ TcpConnection::~TcpConnection()
 {
 	if(fd_ > 0)
 	{
+		LOG4CPLUS_INFO(_logger, "close fd") ;
+		event_handler_ptr_->unregisterEvent();
 		socket_operator_.close(fd_);
 	}
 }

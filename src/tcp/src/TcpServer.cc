@@ -68,6 +68,7 @@ void TcpServer::newConnectionCallback(std::shared_ptr<TcpConnection>& tcp_connec
 	if(tcp_connection_ptr)
 	{
 		tcp_connection_ptr->setReadCallback(std::bind(&TcpServer::newMessageCallback, this, std::placeholders::_1, std::placeholders::_2));
+		tcp_connection_ptr->setClosedCallback(std::bind(&TcpServer::closeCallback, this, std::placeholders::_1));
 		tcp_connection_ptr->enableRead();
 		tcp_connection_ptr->registerIntoLoop();
 		tcp_connection_map_[tcp_connection_ptr->getConnId()] = tcp_connection_ptr;
@@ -78,6 +79,7 @@ void TcpServer::newMessageCallback(std::shared_ptr<TcpConnection> tcp_connection
 {
 	LOG4CPLUS_DEBUG(_logger, "new message received: "<<tcp_connection_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
 	tcp_connection_ptr->write("Hello!", 6);
+	tcp_connection_ptr->shutdownWrite();
 	if(tcp_connection_ptr && newMessageCallback_)
 	{
 		newMessageCallback_(tcp_connection_ptr, timestamp);
@@ -86,6 +88,7 @@ void TcpServer::newMessageCallback(std::shared_ptr<TcpConnection> tcp_connection
 
 void TcpServer::closeCallback(std::shared_ptr<TcpConnection> tcp_connection_ptr)
 {
+	LOG4CPLUS_DEBUG(_logger, "erase connection: "<<tcp_connection_ptr->getConnId()) ;
 	tcp_connection_map_.erase(tcp_connection_ptr->getConnId());
 	if(closeCallback_)
 	{
