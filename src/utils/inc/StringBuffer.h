@@ -26,12 +26,12 @@ public:
 	}
 	std::string retrieveAllAsString()
 	{
-		retrieveAsString(getReadableBytes());
+		return retrieveAsString(getReadableBytes());
 	}
 
 	std::string retrieveAsString(long len)
 	{
-		LOG4CPLUS_DEBUG(_logger, "string info: "<<read_index_<<"  "<<len) ;
+		//LOG4CPLUS_DEBUG(_logger, "string info: "<<read_index_<<"  "<<len) ;
 		std::string str(peek(), len);
 		retrieve(len);
 		return str;

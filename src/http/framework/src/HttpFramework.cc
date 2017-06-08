@@ -160,6 +160,13 @@ HttpFramework::HttpFramework(EventLoop* loop, const std::string& server_addr, co
       _sessionMap(10,1800)
 {
 }
+
+HttpFramework::HttpFramework(const std::string& server_addr, const int server_port)
+    : _httpServer(std::unique_ptr<HttpServer>(new HttpServer(new EventLoop, server_addr, server_port))),
+      _sessionMap(10,1800)
+{
+}
+
 void HttpFramework::start()
 {
     //_httpServer->setHttpCallback(std::bind(&HttpFramework::onRequest, this, _1, _2));

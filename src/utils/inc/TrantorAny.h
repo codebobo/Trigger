@@ -39,7 +39,7 @@
 		template <class T>
 		friend T trantorAnyCast(const TrantorAny& p);
 	public:
-		explicit TrantorAny(){}
+		explicit TrantorAny():base_holder_(NULL){}
 		template <class T>
 		TrantorAny(const T& p) :base_holder_(new Holder<T>(p)) { assert(base_holder_ != nullptr); }
 		explicit TrantorAny(const TrantorAny& p)
@@ -62,7 +62,13 @@
 			assert(base_holder_ != nullptr);
 		}
 
-		~TrantorAny() { delete base_holder_; }
+		~TrantorAny() 
+		{ 
+			if(base_holder_ != NULL)
+			{
+				delete base_holder_;
+			}
+		}
 		BaseHolder* getBaseHolder() const
 		{
 			return base_holder_;

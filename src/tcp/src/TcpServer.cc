@@ -78,6 +78,7 @@ void TcpServer::newConnectionCallback(std::shared_ptr<TcpConnection>& tcp_connec
 
 void TcpServer::newMessageCallback(std::shared_ptr<TcpConnection> tcp_connection_ptr, const TrantorTimestamp timestamp)
 {
+	LOG4CPLUS_DEBUG(_logger, "new message received: ") ;
 	LOG4CPLUS_DEBUG(_logger, "new message received: "<<tcp_connection_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
 	tcp_connection_ptr->write("Hello!", 6);
 	tcp_connection_ptr->forceClose();

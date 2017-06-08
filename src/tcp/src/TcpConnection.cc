@@ -39,6 +39,7 @@ void TcpConnection::write(const char* addr, const long len)
 void TcpConnection::readCallback()
 {
 	int length = socket_operator_.read(fd_, read_buffer_ptr_);
+	LOG4CPLUS_INFO(_logger, "read bytes: "<<length) ;
 	if(length > 0)
 	{
 		if(readCallback_)

@@ -1,5 +1,6 @@
-#include "StringBuffer.h"
 #include <string.h>
+#include "StringBuffer.h"
+#include "Log.h"
 
 const char StringBuffer::kCRLF[] = "\r\n";
 
@@ -30,6 +31,7 @@ void StringBuffer::adjustBuffer()
 
 int StringBuffer::writeBuffer(const char* addr, const size_t size)
 {
+	//LOG4CPLUS_DEBUG(_logger, "write buffer "<<getBackwardWritableBytes()<<" "<<getForwardWritableBytes()<<" "<<buffer_.capacity());
 	if(getBackwardWritableBytes() >= size)
 	{
 		memcpy(const_cast<char*>(end()), addr, size);
@@ -44,6 +46,8 @@ int StringBuffer::writeBuffer(const char* addr, const size_t size)
 		resizeBuffer(buffer_.capacity() + size - getBackwardWritableBytes() + 1);
 		memcpy(const_cast<char*>(end()), addr, size);
 	}
+	write_index_ += size;
+	//LOG4CPLUS_DEBUG(_logger, "write buffer "<<write_index_);
 }
 size_t StringBuffer::readBuffer(const char* addr, const size_t size)
 {

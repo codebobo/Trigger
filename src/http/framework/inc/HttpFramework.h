@@ -23,6 +23,7 @@ class HttpFramework:public FrameworkEnvironment
 {
 	public:
 		HttpFramework(EventLoop* loop, const std::string& server_addr, const int server_port);
+		HttpFramework(const std::string& server_addr, const int server_port);
 		void start();
 		void initWithConfigFile(const std::string & filePath);
 		virtual const std::string getUploadPath() const ;
