@@ -1,6 +1,7 @@
 #pragma once
 #include <assert.h>
 #include <typeinfo>
+#include "Log.h"
 
 	class BaseHolder
 	{
@@ -30,7 +31,7 @@
 		{
 			return holder_;
 		}
-	private:
+	public:
 		T holder_;
 	};
 
@@ -38,10 +39,13 @@
 	{
 		template <class T>
 		friend T trantorAnyCast(const TrantorAny& p);
+
+		template<class T>
+		friend T * trantorAnyCast(TrantorAny * p);
 	public:
 		explicit TrantorAny():base_holder_(NULL){}
 		template <class T>
-		TrantorAny(const T& p) :base_holder_(new Holder<T>(p)) { assert(base_holder_ != nullptr); }
+		TrantorAny(const T& p) :base_holder_(new Holder<T>(p)) { assert(base_holder_ != nullptr);}
 		explicit TrantorAny(const TrantorAny& p)
 		{
 			if (p.base_holder_)
@@ -56,10 +60,25 @@
 		}
 
 		template <class T>
-		inline void operator= (T p)
+		inline TrantorAny& operator= (const T& p)
 		{
 			base_holder_ = new Holder<T>(p);
 			assert(base_holder_ != nullptr);
+			return *this;
+		}
+
+		inline TrantorAny& operator= (const TrantorAny& p)
+		{
+			if (p.base_holder_)
+			{
+				base_holder_ = p.base_holder_->copy();
+				assert(base_holder_ != nullptr);
+			}
+			else
+			{
+				base_holder_ = nullptr;
+			}
+			return *this;
 		}
 
 		~TrantorAny() 
@@ -90,7 +109,12 @@
 		{
 			return (dynamic_cast<Holder<T>* >(p.base_holder_))->getValue();
 		}
-		return NULL;
+	}
+
+	template<class T>
+	T * trantorAnyCast(TrantorAny * p)
+	{
+		return	(p && p->typeId() == typeid(T)) ? &((static_cast<Holder<T>*>(p->base_holder_))->holder_) : NULL; // 这儿有个向下类型转换
 	}
 
 

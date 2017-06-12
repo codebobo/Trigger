@@ -5,11 +5,12 @@
 #include "HttpResponse.h"
 #include <StringBuffer.h>
 #include "TrantorTimestamp.h"
+#include "Log.h"
 
 class HttpContext
 {
  public:
-  enum HttpRequestParseState
+  enum class HttpRequestParseState
   {
     kExpectRequestLine,
     kExpectHeaders,
@@ -30,9 +31,10 @@ class HttpContext
   };
 
   HttpContext()
-    : state_(kExpectRequestLine),
+    : state_(HttpRequestParseState::kExpectRequestLine),
     res_state_(HttpResponseParseState::kExpectResponseLine)
   {
+  	LOG4CPLUS_DEBUG(_logger, "bb: "<<&state_<<" "<<(int)HttpRequestParseState::kExpectRequestLine);
   }
 
   // default copy-ctor, dtor and assignment are fine
@@ -42,7 +44,7 @@ class HttpContext
   bool parseResponse(StringBuffer* buf, TrantorTimestamp receiveTime);
 
   bool gotAll() const
-  { return state_ == kGotAll; }
+  { return state_ == HttpRequestParseState::kGotAll; }
 
   bool resGotAll() const
   { return res_state_ == HttpResponseParseState::kGotAll; }
@@ -52,7 +54,7 @@ class HttpContext
 
   void reset()
   {
-    state_ = kExpectRequestLine;
+    state_ = HttpRequestParseState::kExpectRequestLine;
     HttpRequest dummy;
     request_.swap(dummy);
   }

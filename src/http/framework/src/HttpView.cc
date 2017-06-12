@@ -4,9 +4,7 @@
 
 HttpResponse HttpView::genHttpResponse(std::string viewName,const HttpViewData &data)
 {
-    //LOG_INFO<<"http view name="<<viewName;
     TRObject *obj=TRClassMap::newObject(viewName);
-    //LOG_INFO<<"obj="<<obj;
     if(obj)
     {
         HttpView *view= dynamic_cast<HttpView *>(obj);

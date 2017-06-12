@@ -68,20 +68,26 @@ void TcpServer::newConnectionCallback(std::shared_ptr<TcpConnection>& tcp_connec
 	if(tcp_connection_ptr)
 	{
 		LOG4CPLUS_INFO(_logger, "accept new tcp connection in main loop");
+		if(newConnectionCallback_)
+		{
+			newConnectionCallback_(tcp_connection_ptr);
+		}
+		
 		tcp_connection_ptr->setReadCallback(std::bind(&TcpServer::newMessageCallback, this, std::placeholders::_1, std::placeholders::_2));
 		tcp_connection_ptr->setClosedCallback(std::bind(&TcpServer::closeCallback, this, std::placeholders::_1));
 		tcp_connection_ptr->enableRead();
-		tcp_connection_ptr->registerIntoLoop();
 		tcp_connection_map_[tcp_connection_ptr->getConnId()] = tcp_connection_ptr;
+
+		tcp_connection_ptr->registerIntoLoop();
 	}
 }
 
 void TcpServer::newMessageCallback(std::shared_ptr<TcpConnection> tcp_connection_ptr, const TrantorTimestamp timestamp)
 {
 	LOG4CPLUS_DEBUG(_logger, "new message received: ") ;
-	LOG4CPLUS_DEBUG(_logger, "new message received: "<<tcp_connection_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
-	tcp_connection_ptr->write("Hello!", 6);
-	tcp_connection_ptr->forceClose();
+	//LOG4CPLUS_DEBUG(_logger, "new message received: "<<tcp_connection_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
+	//tcp_connection_ptr->write("Hello!", 6);
+	//tcp_connection_ptr->forceClose();
 	if(tcp_connection_ptr && newMessageCallback_)
 	{
 		newMessageCallback_(tcp_connection_ptr, timestamp);

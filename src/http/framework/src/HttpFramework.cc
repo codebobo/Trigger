@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <string>
 #include <sys/stat.h>
+#include "Log.h"
 
 /*
 HTTP/1.1 302 Found
@@ -24,17 +25,15 @@ Content-Length: 0
 using namespace std::placeholders;
 void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (HttpResponse &)>callback)
 {
-    //std::cout << "Headers " << req.methodString() << " " << req.path() << std::endl;
-	
+	LOG4CPLUS_DEBUG(_logger, "onAsyncRequest path: "<<req.path()<<" query: "<<req.query()) ;
 	if (!benchmark) {
         const std::map<std::string, std::string>& headers = req.headers();
         for (std::map<std::string, std::string>::const_iterator it = headers.begin();
              it != headers.end();
              ++it) {
-            std::cout << it->first << ": " << it->second << std::endl;
+            //std::cout << it->first << ": " << it->second << std::endl;
         }
 
-		//std::cout<<"cookies:"<<std::endl;
 		auto cookies = req.cookies();
 		for(auto it=cookies.begin();it!=cookies.end();++it)
 		{
@@ -42,9 +41,6 @@ void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (Ht
 		}
     }
 
-
-    //LOG_INFO << "http path=" << req.path();
-    //LOG_INFO << "query: " << req.query() ;
 
     std::string session_id=req.getCookie("JSESSIONID");
 	bool needSetJsessionid=false;
@@ -72,7 +68,7 @@ void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (Ht
         std::string filetype = path.substr(pos + 1, path.length());
         transform(filetype.begin(), filetype.end(), filetype.begin(), tolower);
         if(_fileTypeSet.find(filetype) != _fileTypeSet.end()) {
-            //LOG_INFO << "file query!";
+            LOG4CPLUS_DEBUG(_logger, "file query") ;
             std::string filePath = _rootPath + path;
 			HttpResponse resp(close);
 			if(needSetJsessionid)
@@ -113,7 +109,7 @@ void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (Ht
         int filter_flag=0;
         if(filter)
         {
-            //LOG_INFO<<filterClassName<<".doFilter()";
+            LOG4CPLUS_DEBUG(_logger, " "<<filterClassName<<".doFilter()") ;
             filter->setSession(_sessionMap[session_id]);
             filter->doFilter(req,[=,&filter_flag]( HttpResponse &resp){
                 callback(resp);
@@ -122,16 +118,19 @@ void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (Ht
             if(filter_flag)
                 return;
         }
-        else{}
-            //LOG_INFO<<"can't find filter "<<filterClassName;
+        else
+		{
+			LOG4CPLUS_DEBUG(_logger, "can't find filter "<<filterClassName) ;
+        }
     }
     std::string ctrlName = (*_controllerMap)[req.path().c_str()];
 
     TRObject *_object = TRClassMap::newObject(ctrlName);
 
     HttpController *controller = dynamic_cast<HttpController*>(_object);
-
+	LOG4CPLUS_DEBUG(_logger, "controller addr: "<<controller) ;
     if(controller) {
+		LOG4CPLUS_DEBUG(_logger, ctrlName<<".doControl()") ;
 		controller->setSession(_sessionMap[session_id]);
         controller->setEnvironment(this);
         controller->handleHttpAsyncRequest(req, [=](HttpResponse& resp){
@@ -141,7 +140,7 @@ void HttpFramework::onAsyncRequest(const HttpRequest& req,std::function<void (Ht
 		});
         delete controller;
     } else {
-        //LOG_ERROR<<"can't find controller "<<ctrlName;
+        LOG4CPLUS_DEBUG(_logger, "can't find controller "<<ctrlName) ;
     	HttpResponse resp(close);
     
         resp.setStatusCode(HttpResponse::k404NotFound);

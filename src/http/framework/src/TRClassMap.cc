@@ -1,4 +1,4 @@
-
+#include "Log.h"
 
 #include "TRClassMap.h"
 #include <iostream>
@@ -8,7 +8,7 @@ void TRClassMap::registerClass(const std::string className,TRClass* classPtr)
 {
    // std::map<std::string,TRClass*> _map;
     std::call_once(flag, [](){classMap=new std::map<std::string,TRClass*>;});
-    //std::cout<<"register class:"<<className<<"("<<classPtr<<")"<<std::endl;
+    //LOG4CPLUS_DEBUG(_logger, "register class:"<<className);
     classMap->insert(std::make_pair(className, classPtr));
 }
 TRObject* TRClassMap::newObject(const std::string className)

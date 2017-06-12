@@ -122,15 +122,17 @@ void HttpResponse::appendToBuffer(StringBuffer* output) const
     output->append(buf);
     output->append(statusMessage_);
     output->append("\r\n");
-
+	//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     if (closeConnection_) {
         output->append("Connection: close\r\n");
+		//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     } else {
         snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", body_.size());
         output->append(buf);
         output->append("Connection: Keep-Alive\r\n");
+		//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     }
-
+	
     for (std::map<std::string, std::string>::const_iterator it = headers_.begin();
          it != headers_.end();
          ++it) {
@@ -139,6 +141,7 @@ void HttpResponse::appendToBuffer(StringBuffer* output) const
         output->append(it->second);
         output->append("\r\n");
     }
+	//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     if(cookies_.size() > 0) {
         output->append("Set-Cookie: ");
         for(auto it = cookies_.begin(); it != cookies_.end(); it++) {
@@ -150,7 +153,7 @@ void HttpResponse::appendToBuffer(StringBuffer* output) const
         output->unwrite(1);//delete last ';'
         output->append("\r\n");
     }
-
+	//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     output->append("\r\n");
 
 	output->append(body_);

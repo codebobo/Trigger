@@ -7,6 +7,7 @@
 #include "StringBuffer.h"
 #include "TrantorTimestamp.h"
 #include "TrantorAny.h"
+#include "Log.h"
 
 class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 {
@@ -54,9 +55,11 @@ class TcpConnection: public std::enable_shared_from_this<TcpConnection>
 		void setContext(const TrantorAny& context)
   		{ 
   			context_ = context; 
+			LOG4CPLUS_ERROR(_logger, "base holder: "<<context_.getBaseHolder()) ;
 		}
 		TrantorAny* getMutableContext()
   		{ 
+  			LOG4CPLUS_DEBUG(_logger, "p addr: "<<&context_<<" "<<context_.getBaseHolder()) ;
   			return &context_; 
 		}
 		int getFd(){return fd_;}

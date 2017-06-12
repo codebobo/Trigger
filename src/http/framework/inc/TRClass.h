@@ -1,10 +1,3 @@
-//
-//  TrantorClass.hpp
-//  antTest
-//
-//  Created by antao on 16/6/23.
-//  Copyright © 2016年 ant. All rights reserved.
-//
 
 #ifndef TrantorClass_hpp
 #define TrantorClass_hpp

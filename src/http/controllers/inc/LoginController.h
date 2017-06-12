@@ -6,6 +6,6 @@ class LoginController:public HttpController
 	public:
 		//virtual void handleHttpRequest(const HttpRequest & req,HttpResponse * resp);
 		virtual void handleHttpAsyncRequest(const HttpRequest & req, std::function < void(HttpResponse &)> callback);
-	DECLARE_TROBJECT_CLASS(LoginController);
+	DECLARE_TROBJECT_CLASS(LoginController); 
 };
 #endif

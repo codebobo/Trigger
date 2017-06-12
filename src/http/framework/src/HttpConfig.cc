@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <string>
+#include "Log.h"
 
 int HttpConfig::init(const std::string &filename)
 {
@@ -19,8 +20,6 @@ int HttpConfig::init(const std::string &filename)
       }
       catch(const libconfig::ParseException &pex)
       {
-        //LOG_ERROR << "Parse error at " << pex.getFile() << ":" << pex.getLine()
-                 // << " - " << pex.getError() ;
         exit(-1);
       }
     return 0;
@@ -50,6 +49,7 @@ std::shared_ptr< std::map<std::string,std::string> > HttpConfig::getControllers(
        if(!(controller.lookupValue("path", path_str)
             && controller.lookupValue("controller", controller_str)))
          continue;
+	   LOG4CPLUS_DEBUG(_logger, "path: "<<path_str<<" controller_str: "<<controller_str);
 	   ctrlMap->insert(std::make_pair(path_str,controller_str));
        }
    }
@@ -63,7 +63,6 @@ std::shared_ptr< std::map<std::string,std::string> > HttpConfig::getControllers(
 std::shared_ptr< std::map<std::string,std::vector<std::string> > > HttpConfig::getFilters()
 {
     const libconfig::Setting& root = config_.getRoot();
-    //LOG_INFO<<"getFilters";
     std::shared_ptr< std::map<std::string,std::vector<std::string> > > ctrlMap = std::shared_ptr< std::map<std::string,std::vector<std::string> > >(new std::map<std::string,std::vector<std::string> >);
     try
     {
@@ -84,7 +83,7 @@ std::shared_ptr< std::map<std::string,std::vector<std::string> > > HttpConfig::g
                 {
                     const std::string &filter_str = filter[j];
                     filters.push_back(filter_str);
-                    //LOG_INFO<<"filter:"<<filter_str;
+                    LOG4CPLUS_DEBUG(_logger, "path: "<<path_str<<" filter_str: "<<filter_str);
                 }
                 ctrlMap->insert(std::make_pair(path_str,filters));
             }

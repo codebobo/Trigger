@@ -1,5 +1,6 @@
-#include "HttpContext.h"
 #include <iostream>
+#include "HttpContext.h"
+#include "Log.h"
 
 
 bool HttpContext::processRequestLine(const char* begin, const char* end)
@@ -39,25 +40,29 @@ bool HttpContext::parseRequest(StringBuffer* buf, TrantorTimestamp receiveTime)
 {
     bool ok = true;
     bool hasMore = true;
-  //  std::cout<<std::string(buf->peek(),buf->readableBytes())<<std::endl;
+	//LOG4CPLUS_DEBUG(_logger, "bb: "<<&state_<<" "<<(int)HttpRequestParseState::kExpectRequestLine);
     while (hasMore) {
-        if (state_ == kExpectRequestLine) {
+		//LOG4CPLUS_DEBUG(_logger, "parse state: "<<(int)state_);
+        if (state_ == HttpRequestParseState::kExpectRequestLine) {
+			//LOG4CPLUS_DEBUG(_logger, "bp");
             const char* crlf = buf->findCRLF();
             if (crlf) {
                 ok = processRequestLine(buf->peek(), crlf);
                 if (ok) {
+					LOG4CPLUS_DEBUG(_logger, "parse request line successfully!");
                     request_.setReceiveTime(receiveTime);
                     buf->retrieveUntil(crlf + 2);
-                    state_ = kExpectHeaders;
+                    state_ = HttpRequestParseState::kExpectHeaders;
                 } else {
                     hasMore = false;
                 }
             } else {
                 hasMore = false;
             }
-        } else if (state_ == kExpectHeaders) {
+        } else if (state_ == HttpRequestParseState::kExpectHeaders) {
             const char* crlf = buf->findCRLF();
             if (crlf) {
+				//LOG4CPLUS_DEBUG(_logger, "bp");
                 const char* colon = std::find(buf->peek(), crlf, ':');
                 if (colon != crlf) {
                     request_.addHeader(buf->peek(), colon, crlf);
@@ -67,10 +72,12 @@ bool HttpContext::parseRequest(StringBuffer* buf, TrantorTimestamp receiveTime)
                     std::string len = request_.getHeader("Content-Length");
                     
                     if(len != "") {
+						LOG4CPLUS_DEBUG(_logger, "parse header successfully! expect body!");
                         request_.contentLen = atoi(len.c_str());
-                        state_ = kExpectBody;
+                        state_ = HttpRequestParseState::kExpectBody;
                     } else {
-                        state_ = kGotAll;
+                    	LOG4CPLUS_DEBUG(_logger, "parse header successfully! got all!");
+                        state_ = HttpRequestParseState::kGotAll;
                         hasMore = false;
                     }
                 }
@@ -78,12 +85,12 @@ bool HttpContext::parseRequest(StringBuffer* buf, TrantorTimestamp receiveTime)
             } else {
                 hasMore = false;
             }
-        } else if (state_ == kExpectBody) {
+        } else if (state_ == HttpRequestParseState::kExpectBody) {
             //LOG_INFO << "expectBody:len=" << request_.contentLen;
             //LOG_INFO << "expectBody:buf=" << buf;
             if(buf->getReadableBytes()==0) {
                 if(request_.contentLen <= 0) {
-                    state_ = kGotAll;
+                    state_ = HttpRequestParseState::kGotAll;
                 }
                 break;
             }
@@ -97,7 +104,7 @@ bool HttpContext::parseRequest(StringBuffer* buf, TrantorTimestamp receiveTime)
                 request_.contentLen = 0;
             }
             if(request_.contentLen <= 0) {
-                state_ = kGotAll;
+                state_ = HttpRequestParseState::kGotAll;
                 //LOG_INFO<<"post got all:len="<<request_.content_.length();
                 //LOG_INFO<<"content:"<<request_.content_;
                 //LOG_INFO<<"content(END)";
