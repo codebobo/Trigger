@@ -140,6 +140,7 @@ void HttpResponse::appendToBuffer(StringBuffer* output) const
         output->append(": ");
         output->append(it->second);
         output->append("\r\n");
+		LOG4CPLUS_DEBUG(_logger, "add res header: "<<it->first<<": "<<it->second);
     }
 	//LOG4CPLUS_DEBUG(_logger, "gen response: "<<output->peek()<<" "<<output->getReadableBytes());
     if(cookies_.size() > 0) {

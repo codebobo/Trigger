@@ -75,7 +75,7 @@ void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& req)
         StringBuffer buf;
         response.setCloseConnection(close);
         response.appendToBuffer(&buf);
-		//LOG4CPLUS_DEBUG(_logger, "gen response: "<<buf.retrieveAllAsString());
+		LOG4CPLUS_DEBUG(_logger, "gen response: "<<buf.peek());
         conn->send(&buf);
         if (response.closeConnection()) {
             conn->shutdown();

@@ -50,12 +50,12 @@ void EventLoop::addEventInLoop(EventWrap* eventwrap_ptr)
 	{
 		if(eventwrap_ptr->type_ == EventType::COMMON_EVENT)
 		{
-			LOG4CPLUS_DEBUG(_logger, "add event in loop!");
+			//LOG4CPLUS_DEBUG(_logger, "add event in loop!");
 			event_add(eventwrap_ptr->ev_, NULL);
 		}
 		if(eventwrap_ptr->type_ == EventType::TIMER_EVENT)
 		{
-			LOG4CPLUS_DEBUG(_logger, "add timer in loop!");
+			//LOG4CPLUS_DEBUG(_logger, "add timer in loop!");
 			TrantorTimestamp interval(eventwrap_ptr->interval_ * 1000000);
 			auto st = interval.getTimeval();
 			event_add(eventwrap_ptr->ev_, &st);

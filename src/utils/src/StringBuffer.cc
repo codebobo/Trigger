@@ -34,16 +34,19 @@ int StringBuffer::writeBuffer(const char* addr, const size_t size)
 	//LOG4CPLUS_DEBUG(_logger, "write buffer "<<getBackwardWritableBytes()<<" "<<getForwardWritableBytes()<<" "<<buffer_.capacity());
 	if(getBackwardWritableBytes() >= size)
 	{
+		//LOG4CPLUS_DEBUG(_logger, "write buffer "<<addr);
 		memcpy(const_cast<char*>(end()), addr, size);
 	}
 	else if(getBackwardWritableBytes() + getForwardWritableBytes() >= size)
 	{
+		//LOG4CPLUS_DEBUG(_logger, "write buffer "<<addr);
 		adjustBuffer();
 		memcpy(const_cast<char*>(end()), addr, size);
 	}
 	else
 	{
-		resizeBuffer(buffer_.capacity() + size - getBackwardWritableBytes() + 1);
+		//LOG4CPLUS_DEBUG(_logger, "write buffer "<<addr);
+		resizeBuffer((buffer_.capacity() + size - getBackwardWritableBytes()) * 2);
 		memcpy(const_cast<char*>(end()), addr, size);
 	}
 	write_index_ += size;

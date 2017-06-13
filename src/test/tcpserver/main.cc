@@ -8,6 +8,11 @@ int main()
 	TcpServer tcp_server;
 	if(tcp_server.init("192.168.12.223", 2222) >= 0)
 	{
+		tcp_server.setNewMessageCallback([](std :: shared_ptr < TcpConnection > conn_ptr, const TrantorTimestamp timestamp)
+											{
+												conn_ptr->write("Hello! Welcome to tcp server!");
+											}
+										);
 		tcp_server.setWorkThreadNum(10);
 		tcp_server.start();
 	}

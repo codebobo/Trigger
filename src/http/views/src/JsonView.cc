@@ -21,7 +21,7 @@ Json::Value value=JsonView_view_data.get<Json::Value>("json");
 Json::FastWriter writer;
 JsonView_tmp_stream<<writer.write(value);
 //std::cout<<writer.write(value);
-	HttpResponse resp(true);
+	HttpResponse resp;
 	resp.setStatusCode(HttpResponse::k200Ok);
 #ifdef CONTENT_TYPE
 	resp.setContentTypeCode(CONTENT_TYPE);
@@ -29,6 +29,5 @@ JsonView_tmp_stream<<writer.write(value);
 	resp.setContentTypeCode(CT_TEXT_HTML);
 #endif
 	resp.setBody(JsonView_tmp_stream.str().c_str());
-	LOG4CPLUS_DEBUG(_logger, "return");
 	return resp;
 }

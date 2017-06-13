@@ -15,7 +15,7 @@ TimerHandler::~TimerHandler()
 
 void TimerHandler::handleEvents(const int fd, const short events, void* arg)
 {
-	LOG4CPLUS_DEBUG(_logger, "timer callback!");
+	//LOG4CPLUS_DEBUG(_logger, "timer callback!");
 	TimerHandler* handler = (TimerHandler*)arg;
 	if(handler && handler->cb_)
 	{
