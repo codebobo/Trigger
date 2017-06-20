@@ -45,7 +45,7 @@ int SocketOperator::accept(const int fd)
 	int sockfd;
 
 	struct sockaddr_in client;
-	socklen_t len;
+	socklen_t len = sizeof(sockaddr_in);
 
 	sockfd = ::accept(fd, (struct sockaddr*)&client, &len );
 	if(sockfd >= 0)

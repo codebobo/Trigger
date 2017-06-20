@@ -24,7 +24,7 @@ TcpConnection::~TcpConnection()
 {
 	if(fd_ > 0)
 	{
-		LOG4CPLUS_INFO(_logger, "close fd") ;
+		LOG4CPLUS_INFO(_logger, "close fd "<<fd_) ;
 		socket_operator_.close(fd_);
 	}
 }
@@ -39,7 +39,7 @@ void TcpConnection::write(const char* addr, const long len)
 void TcpConnection::readCallback()
 {
 	int length = socket_operator_.read(fd_, read_buffer_ptr_);
-	LOG4CPLUS_INFO(_logger, "read bytes: "<<length) ;
+	LOG4CPLUS_INFO(_logger, "read bytes: "<<length<<" fd: "<<fd_) ;
 	if(length > 0)
 	{
 		if(readCallback_)

@@ -10,6 +10,7 @@ int main()
 	{
 		tcp_server.setNewMessageCallback([](std :: shared_ptr < TcpConnection > conn_ptr, const TrantorTimestamp timestamp)
 											{
+												LOG4CPLUS_DEBUG(_logger, "new message received: "<<conn_ptr->getReadBufferPtr()->retrieveAllAsString()) ;
 												conn_ptr->write("Hello! Welcome to tcp server!");
 											}
 										);

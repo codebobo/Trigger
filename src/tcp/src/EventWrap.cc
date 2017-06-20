@@ -33,7 +33,7 @@ EventWrap::EventWrap(EventLoop* loop_ptr, const double interval)
 
 EventWrap::~EventWrap()
 {
-	event_del(ev_);
+	//event_del(ev_);
 	event_free(ev_);
 }
 
@@ -100,6 +100,7 @@ void EventWrap::unregisterEvent()
 	}
 	if(loop_ptr_)
 	{
+		//LOG4CPLUS_DEBUG(_logger, "remove event!");
 		loop_ptr_->removeEvent(this);
 		state_ = EventState::UNREGISTER;
 	}
@@ -107,7 +108,7 @@ void EventWrap::unregisterEvent()
 
 void EventWrap::handleEvents(const int fd, const short events)
 {
-	if(handler_)
+	if(handler_ && state_ == EventState::REGISTERED)
 	{
 		handler_(fd, events);
 	}

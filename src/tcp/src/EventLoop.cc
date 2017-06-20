@@ -41,6 +41,7 @@ void EventLoop::addEvent(EventWrap* eventwrap_ptr)
 
 void EventLoop::removeEvent(EventWrap* eventwrap_ptr)
 {
+	//LOG4CPLUS_DEBUG(_logger, "remove event! "<<eventwrap_ptr->getEventFd());
 	runInLoop(std::bind(&EventLoop::removeEventInLoop, this, eventwrap_ptr));	
 }
 
@@ -48,6 +49,7 @@ void EventLoop::addEventInLoop(EventWrap* eventwrap_ptr)
 {
 	if(eventwrap_ptr)
 	{
+		LOG4CPLUS_DEBUG(_logger, "add event in loop! "<<eventwrap_ptr->getEventFd());
 		if(eventwrap_ptr->type_ == EventType::COMMON_EVENT)
 		{
 			//LOG4CPLUS_DEBUG(_logger, "add event in loop!");
@@ -67,7 +69,9 @@ void EventLoop::removeEventInLoop(EventWrap* eventwrap_ptr)
 {
 	if(eventwrap_ptr)
 	{
-		event_del(eventwrap_ptr->ev_);
+		LOG4CPLUS_DEBUG(_logger, "remove event in loop! "<<eventwrap_ptr->getEventFd()<<" "<<event_del(eventwrap_ptr->ev_));
+		//event_del(eventwrap_ptr->ev_);
+		//LOG4CPLUS_DEBUG(_logger, "after remove event in loop! "<<event_base_get_num_events(base_, EV_READ));
 	}	
 }
 

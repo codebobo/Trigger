@@ -21,7 +21,7 @@ class HttpServer
 
   ~HttpServer();  // force out-line dtor, for scoped_ptr members.
 
-  EventLoop* getLoop() const { return server_.getMainLoop(); }
+  EventLoop* getLoop() { return server_.getMainLoop(); }
 
 
   void setHttpAsyncCallback(const HttpAsyncCallback& cb)
